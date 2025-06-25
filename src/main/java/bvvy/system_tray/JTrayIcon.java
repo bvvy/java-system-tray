@@ -6,6 +6,9 @@ import javax.swing.event.PopupMenuListener;
 import java.awt.*;
 import java.awt.event.*;
 
+/**
+ * tray icon
+ */
 public class JTrayIcon {
 
     private final TrayIcon trayIcon;

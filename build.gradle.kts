@@ -1,11 +1,15 @@
+import org.jreleaser.model.Active
+import org.jreleaser.model.Signing
+
 plugins {
     id("java")
     id("maven-publish")
     id("signing")
+    apply { id("org.jreleaser") version "1.17.0" }
 }
 
 group = "io.github.bvvy"
-version = "1.0.0"
+version = "1.0.1"
 
 repositories {
     mavenCentral()
@@ -58,8 +62,8 @@ publishing {
 
                 // SCM信息
                 scm {
-                    connection.set("scm:git:https://github.com/bvvy/java-system-tray.git")
-                    developerConnection.set("scm:git:https//github.com/bvvy/java-system-tray.git")
+                    connection.set("scm:git://github.com/bvvy/java-system-tray.git")
+                    developerConnection.set("scm:git:ssh://github.com/bvvy/java-system-tray.git")
                     url.set("https://github.com/bvvy/java-system-tray")
                 }
 
@@ -72,17 +76,8 @@ publishing {
         }
     }
     repositories {
-        mavenLocal()
         maven {
-            val releasesRepoUrl = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-            val snapshotsRepoUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
-            url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
-
-
-            credentials {
-                username = project.findProperty("ossrhUsername") as String? ?: System.getenv("OSSRH_USERNAME")
-                password = project.findProperty("ossrhPassword") as String? ?: System.getenv("OSSRH_PASSWORD")
-            }
+            url = layout.buildDirectory.dir("staging-deploy").get().asFile.toURI()
         }
     }
 }
@@ -90,6 +85,28 @@ publishing {
 signing {
     sign(publishing.publications["mavenJava"])
 }
+
+jreleaser {
+    signing {
+        active.set(Active.ALWAYS)
+        armored = true
+        mode.set(Signing.Mode.FILE)
+        publicKey = "C:/Users/bvvy/public.pgp"
+        secretKey = "C:/Users/bvvy/private.pgp"
+    }
+    deploy {
+        maven {
+            mavenCentral {
+                create("sonatype") {
+                    active.set(Active.ALWAYS)
+                    url.set("https://central.sonatype.com/api/v1/publisher")
+                    stagingRepository("build/staging-deploy")
+                }
+            }
+        }
+    }
+}
+
 
 
 tasks.test {

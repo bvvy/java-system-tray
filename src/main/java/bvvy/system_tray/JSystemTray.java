@@ -4,6 +4,9 @@ import java.awt.*;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 
+/**
+ * 系统托盘
+ */
 public class JSystemTray {
 
 
